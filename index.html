@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Skilze Claude</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    header .logo {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    header h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    header p  { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #475569;
+      margin: 28px 0 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: #1e2130;
+      border: 1px solid #2a2f45;
+      border-radius: 14px;
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s, background .15s;
+      position: relative;
+      user-select: none;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #4f46e5;
+      background: #252840;
+    }
+
+    .card:active { transform: scale(.97); }
+
+    .card .icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .card .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .card .cmd {
+      font-size: 12px;
+      color: #6366f1;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      margin-bottom: 8px;
+    }
+
+    .card .desc {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .card .badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      letter-spacing: .04em;
+    }
+
+    .badge-auto   { background: #1e3a1e; color: #4ade80; }
+    .badge-block  { background: #3a1e1e; color: #f87171; }
+    .badge-media  { background: #1e2a3a; color: #60a5fa; }
+    .badge-util   { background: #2a1e3a; color: #c084fc; }
+    .badge-data   { background: #1e2e2a; color: #34d399; }
+
+    /* toast */
+    #toast {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #4f46e5;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      pointer-events: none;
+      transition: transform .25s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    .search-wrap {
+      margin-bottom: 20px;
+    }
+    .search-wrap input {
+      width: 100%;
+      max-width: 340px;
+      background: #1e2130;
+      border: 1px solid #2a2f45;
+      border-radius: 10px;
+      padding: 9px 14px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: #4f46e5; }
+    .search-wrap input::placeholder { color: #475569; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡</div>
+  <div>
+    <h1>Dashboard Skillsów</h1>
+    <p>Kliknij kartę, aby skopiować komendę do schowka</p>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="🔍  Szukaj skilla..." oninput="filterCards()">
+</div>
+
+<div class="section-label">🚗 Automatyzacja / Codzienne</div>
+<div class="grid" id="group-auto">
+
+  <div class="card" onclick="copy('/rezerwacja_parkingu')">
+    <span class="icon">🅿️</span>
+    <span class="badge badge-auto">Auto</span>
+    <div class="name">Rezerwacja Parkingu</div>
+    <div class="cmd">/rezerwacja_parkingu</div>
+    <div class="desc">Rezerwuje miejsce w Zonifero na jutro (pomija weekendy)</div>
+  </div>
+
+  <div class="card" onclick="copy('/słowniki_gam')">
+    <span class="icon">📊</span>
+    <span class="badge badge-data">Dane</span>
+    <div class="name">Słowniki GAM</div>
+    <div class="cmd">/słowniki_gam</div>
+    <div class="desc">Pobiera CSV z Outlooka i uzupełnia słownik GAM na SharePoint</div>
+  </div>
+
+  <div class="card" onclick="copy('/słowniki_adform')">
+    <span class="icon">📋</span>
+    <span class="badge badge-data">Dane</span>
+    <div class="name">Słowniki Adform</div>
+    <div class="cmd">/słowniki_adform</div>
+    <div class="desc">Aktualizacja adunit w słowniku Adform</div>
+  </div>
+
+</div>
+
+<div class="section-label">🚫 Blokady domen</div>
+<div class="grid" id="group-block">
+
+  <div class="card" onclick="copy('/block')">
+    <span class="icon">🌐</span>
+    <span class="badge badge-block">Blokada</span>
+    <div class="name">Block (globalna)</div>
+    <div class="cmd">/block</div>
+    <div class="desc">Globalna blokada domeny we wszystkich platformach</div>
+  </div>
+
+  <div class="card" onclick="copy('/block_gam')">
+    <span class="icon">📰</span>
+    <span class="badge badge-block">Blokada</span>
+    <div class="name">Block GAM</div>
+    <div class="cmd">/block_gam</div>
+    <div class="desc">Blokada domeny w Google Ad Manager</div>
+  </div>
+
+  <div class="card" onclick="copy('/block_ca')">
+    <span class="icon">🔗</span>
+    <span class="badge badge-block">Blokada</span>
+    <div class="name">Block ConnectAd</div>
+    <div class="cmd">/block_ca</div>
+    <div class="desc">Blokada domeny w ConnectAd</div>
+  </div>
+
+  <div class="card" onclick="copy('/block_criteo')">
+    <span class="icon">🛒</span>
+    <span class="badge badge-block">Blokada</span>
+    <div class="name">Block Criteo</div>
+    <div class="cmd">/block_criteo</div>
+    <div class="desc">Blokada domeny w Criteo Commerce Grid</div>
+  </div>
+
+  <div class="card" onclick="copy('/block_pub')">
+    <span class="icon">📡</span>
+    <span class="badge badge-block">Blokada</span>
+    <div class="name">Block PubMatic</div>
+    <div class="cmd">/block_pub</div>
+    <div class="desc">Blokada domeny w PubMatic</div>
+  </div>
+
+  <div class="card" onclick="copy('/block_wpartner')">
+    <span class="icon">🤝</span>
+    <span class="badge badge-block">Blokada</span>
+    <div class="name">Block WPartner</div>
+    <div class="cmd">/block_wpartner</div>
+    <div class="desc">Blokada domeny w WPartner Panel</div>
+  </div>
+
+</div>
+
+<div class="section-label">📢 Komunikacja</div>
+<div class="grid" id="group-media">
+
+  <div class="card" onclick="copy('/wyslij_news')">
+    <span class="icon">📨</span>
+    <span class="badge badge-media">Media</span>
+    <div class="name">Wyślij Newsletter</div>
+    <div class="cmd">/wyslij_news</div>
+    <div class="desc">Wysyła newsletter o blokadzie domeny</div>
+  </div>
+
+  <div class="card" onclick="copy('/whitelist_ix')">
+    <span class="icon">✅</span>
+    <span class="badge badge-media">Media</span>
+    <div class="name">Whitelist IX</div>
+    <div class="cmd">/whitelist_ix</div>
+    <div class="desc">Uzupełnia Compliance Template dla Index Exchange</div>
+  </div>
+
+  <div class="card" onclick="copy('/stworz_task_na_usniecie_konf')">
+    <span class="icon">🎫</span>
+    <span class="badge badge-media">Jira</span>
+    <div class="name">Task — usuń konfigurację</div>
+    <div class="cmd">/stworz_task_na_usniecie_konf</div>
+    <div class="desc">Tworzy task w Jira WPPAR na usunięcie konfiguracji</div>
+  </div>
+
+</div>
+
+<div class="section-label">🛠️ Narzędzia / Dev</div>
+<div class="grid" id="group-util">
+
+  <div class="card" onclick="copy('/trino_guide')">
+    <span class="icon">🗄️</span>
+    <span class="badge badge-util">Dev</span>
+    <div class="name">Trino Guide</div>
+    <div class="cmd">/trino_guide</div>
+    <div class="desc">Przewodnik połączenia z Trino (HUB DSS / BIBD)</div>
+  </div>
+
+  <div class="card" onclick="copy('/update-config')">
+    <span class="icon">⚙️</span>
+    <span class="badge badge-util">Config</span>
+    <div class="name">Update Config</div>
+    <div class="cmd">/update-config</div>
+    <div class="desc">Konfiguruje Claude Code — hooki, uprawnienia, zmienne</div>
+  </div>
+
+  <div class="card" onclick="copy('/simplify')">
+    <span class="icon">🧹</span>
+    <span class="badge badge-util">Dev</span>
+    <div class="name">Simplify</div>
+    <div class="cmd">/simplify</div>
+    <div class="desc">Przegląda zmieniony kod i poprawia jakość / redundancje</div>
+  </div>
+
+  <div class="card" onclick="copy('/loop')">
+    <span class="icon">🔁</span>
+    <span class="badge badge-util">Dev</span>
+    <div class="name">Loop</div>
+    <div class="cmd">/loop</div>
+    <div class="desc">Uruchamia komendę cyklicznie (np. /loop 5m /foo)</div>
+  </div>
+
+  <div class="card" onclick="copy('/claude-api')">
+    <span class="icon">🤖</span>
+    <span class="badge badge-util">Dev</span>
+    <div class="name">Claude API</div>
+    <div class="cmd">/claude-api</div>
+    <div class="desc">Buduje aplikacje z Claude API / Anthropic SDK</div>
+  </div>
+
+  <div class="card" onclick="copy('/keybindings-help')">
+    <span class="icon">⌨️</span>
+    <span class="badge badge-util">Config</span>
+    <div class="name">Keybindings</div>
+    <div class="cmd">/keybindings-help</div>
+    <div class="desc">Dostosowuje skróty klawiszowe w Claude Code</div>
+  </div>
+
+</div>
+
+<div id="toast">✓ Skopiowano do schowka</div>
+
+<script>
+  // Password protection
+  (function() {
+    const HASH = '7b4c1f2e9a3d8b6c5f0e2a1d4c7b9f3e'; // skil123
+    function sha1simple(s) {
+      // simple hash for obfuscation (not crypto)
+      let h = 0x9e3779b9;
+      for (let i = 0; i < s.length; i++) {
+        h = Math.imul(h ^ s.charCodeAt(i), 0x85ebca6b);
+        h ^= h >>> 13;
+      }
+      return (h >>> 0).toString(16).padStart(8,'0');
+    }
+    const stored = sessionStorage.getItem('dash_auth');
+    if (stored !== sha1simple('skil123')) {
+      document.documentElement.style.display = 'none';
+      const pw = prompt('🔒 Podaj hasło:');
+      if (sha1simple(pw || '') === sha1simple('skil123')) {
+        sessionStorage.setItem('dash_auth', sha1simple('skil123'));
+        document.documentElement.style.display = '';
+      } else {
+        document.documentElement.innerHTML = '<body style="background:#0f1117;color:#f87171;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;font-size:18px">❌ Błędne hasło</body>';
+      }
+    }
+  })();
+
+  function copy(cmd) {
+    navigator.clipboard.writeText(cmd).then(() => {
+      const t = document.getElementById('toast');
+      t.textContent = '✓ Skopiowano: ' + cmd;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 1800);
+    });
+  }
+
+  function filterCards() {
+    const q = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.card').forEach(card => {
+      const text = card.innerText.toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>

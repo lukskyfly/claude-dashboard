@@ -277,6 +277,51 @@
   <input type="text" id="search" placeholder="🔍  Szukaj skilla..." oninput="filterCards()">
 </div>
 
+<div class="section-label">📊 Monitoring / Dyżur</div>
+<div class="grid" id="group-monitoring">
+
+  <div class="card" onclick="runSkill(this, '/dyzur')" style="border-color:#7c3aed">
+    <span class="icon">🔍</span>
+    <span class="badge badge-auto">Dyżur</span>
+    <div class="name">Dyżur (wszystkie)</div>
+    <div class="cmd">/dyzur</div>
+    <div class="desc">BS Total → GAM t/t → Prebid t/t → Grafany (sekwencja)</div>
+  </div>
+
+  <div class="card" onclick="runSkill(this, '/bs_today_total')">
+    <span class="icon">💰</span>
+    <span class="badge badge-data">Dane</span>
+    <div class="name">BS Today Total</div>
+    <div class="cmd">/bs_today_total</div>
+    <div class="desc">BidSwitch seatFee dziś z Superset → Teams</div>
+  </div>
+
+  <div class="card" onclick="runSkill(this, '/rev_gam_tt')">
+    <span class="icon">📈</span>
+    <span class="badge badge-data">Dane</span>
+    <div class="name">REV GAM t/t</div>
+    <div class="cmd">/rev_gam_tt</div>
+    <div class="desc">Revenue DFP w SWIV z porównaniem tydzień do tygodnia</div>
+  </div>
+
+  <div class="card" onclick="runSkill(this, '/rev_prebid_tt')">
+    <span class="icon">📉</span>
+    <span class="badge badge-data">Dane</span>
+    <div class="name">REV Prebid t/t</div>
+    <div class="cmd">/rev_prebid_tt</div>
+    <div class="desc">Revenue Prebid w SWIV z porównaniem tydzień do tygodnia</div>
+  </div>
+
+  <div class="card" onclick="runSkill(this, '/grafany')">
+    <span class="icon">📊</span>
+    <span class="badge badge-data">Dane</span>
+    <div class="name">Grafany</div>
+    <div class="cmd">/grafany</div>
+    <div class="desc">4 screenshoty Grafana do Teams (WPM, WPartner, Apki, Wydawcy)</div>
+  </div>
+
+</div>
+
 <div class="section-label">🚗 Automatyzacja / Codzienne</div>
 <div class="grid" id="group-auto">
 
